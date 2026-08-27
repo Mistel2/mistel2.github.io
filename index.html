@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Food Delivery A/B Test (12 Matrix Variants)</title>
+    <title>Food Delivery A/B Test (Participant View)</title>
     
     <!-- แท็กช่วยให้เปิดแบบเต็มจอไร้ขอบบนมือถือ (iOS / Android) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -25,14 +25,31 @@
         <span id="toast-text">คุณต้องอยู่ในหน้านี้อีกสักครู่</span>
     </div>
 
-    <!-- ปุ่มลอยจางๆ "กลับสู่การทำแบบสอบถาม" -->
-    <button id="return-survey-btn" class="fixed top-4 left-1/2 -translate-x-1/2 z-[10000] bg-black/60 hover:bg-black/80 text-white/90 text-xs px-4 py-2 rounded-full shadow-lg backdrop-blur-md border border-white/20 transition-all duration-500 hidden active:scale-95">
+    <!-- ปุ่มลอยจางๆ "กลับสู่การทำแบบสอบถาม" (ซ่อนจนกว่าจะครบ 15 วิ) -->
+    <button id="return-survey-btn" class="fixed top-4 left-1/2 -translate-x-1/2 z-[10000] bg-black/80 hover:bg-black/90 text-white/100 font-bold text-sm px-5 py-3 rounded-full shadow-lg backdrop-blur-md border border-white/20 transition-all duration-500 hidden active:scale-95">
         <i class="fa-solid fa-arrow-left-long mr-1.5"></i>กลับสู่การทำแบบสอบถาม
     </button>
 
+    <!-- หน้า Error (แสดงเมื่อ Hash ไม่ถูกต้อง) -->
+    <div id="error-screen" class="fixed inset-0 bg-white z-[10005] hidden flex-col items-center justify-center p-6 text-center">
+        <i class="fa-solid fa-circle-exclamation text-5xl text-red-500 mb-4"></i>
+        <h2 class="text-xl font-bold text-gray-800">เกิดข้อผิดพลาดในการโหลดสิ่งเร้า</h2>
+        <p class="text-gray-600 mt-2 text-sm leading-relaxed">
+            ไม่พบรหัสรูปแบบการทดสอบที่ถูกต้อง (Invalid URL Hash)<br>
+            กรุณาติดต่อผู้วิจัยเพื่อตรวจสอบลิงก์
+        </p>
+    </div>
+
+    <!-- หน้า Done (แสดงเมื่อดูสิ่งเร้าจบและกดกลับ) -->
+    <div id="done-screen" class="fixed inset-0 bg-white z-[10004] hidden flex-col items-center justify-center p-6 text-center">
+        <i class="fa-solid fa-circle-check text-6xl text-green-500 mb-4"></i>
+        <h2 class="text-2xl font-bold text-gray-800">ดูสิ่งเร้าเรียบร้อยแล้ว</h2>
+        <p class="text-gray-600 mt-2">กรุณาตอบแบบสอบถามต่อในหน้า Qualtrics</p>
+    </div>
+
     <!-- Overlay เข้าสู่โหมดเต็มจอ (Welcome Screen) -->
     <div id="fullscreen-overlay" class="fixed inset-0 z-[9999] bg-black/30 backdrop-blur-md flex flex-col items-center justify-center p-6 max-w-md mx-auto transition-all duration-300">
-        <div class="bg-white/80 border border-white/40 p-6 rounded-3xl shadow-2xl backdrop-blur-lg flex flex-col items-center text-center max-w-xs w-full">
+        <div class="bg-white/90 border border-white/40 p-6 rounded-3xl shadow-2xl backdrop-blur-lg flex flex-col items-center text-center max-w-xs w-full">
             <div class="w-16 h-16 bg-green-600/10 border border-green-500/20 rounded-full flex items-center justify-center mb-4 shadow-sm animate-pulse">
                 <i class="fa-solid fa-expand text-2xl text-green-600"></i>
             </div>
@@ -48,128 +65,28 @@
         </div>
     </div>
 
-    <!-- Modal ป๊อบอัพเลือกรูปแบบ (1-12 Variant Picker) -->
-    <div id="variant-picker-modal" class="fixed inset-0 z-[10002] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl shadow-2xl max-w-xs w-full p-5 max-h-[80vh] flex flex-col border border-gray-100">
-            <div class="flex justify-between items-center mb-3 pb-2 border-b">
-                <h3 class="font-bold text-gray-800 text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-heart text-gray-600"></i> เลือกรูปแบบทดสอบ (1-12)
-                </h3>
-                <button id="close-variant-modal" class="text-gray-400 hover:text-gray-700 text-lg font-bold px-2">&times;</button>
-            </div>
-            <div id="variant-list-container" class="space-y-2 overflow-y-auto flex-1 pr-1 no-scrollbar">
-                <!-- Javascript จะสร้างตัวเลือก V1-V12 ตรงนี้ -->
-            </div>
-        </div>
-    </div>
-
-    <!-- หน้าตั้งค่า /setting -->
-    <div id="settings-screen" class="fixed inset-0 bg-white z-[9999] p-6 hidden flex-col max-w-md mx-auto overflow-y-auto">
-        <div class="flex justify-between items-center border-b pb-4 mb-6">
-            <h2 class="text-xl font-bold text-gray-800"><i class="fa-solid fa-gear text-green-600 mr-2"></i>ตั้งค่าโหมด A/B Testing</h2>
-            <button id="close-settings-btn" class="text-gray-500 hover:text-gray-800 text-xl font-bold px-2">&times;</button>
-        </div>
-
-        <div class="space-y-6 flex-1">
-            <!-- ตั้งค่าการสุ่ม -->
-            <div>
-                <label class="block font-bold text-gray-700 mb-3">รูปแบบการสุ่มทดสอบ (Test Mode):</label>
-                <div class="space-y-3">
-                    <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition">
-                        <input type="radio" name="ab-mode" value="sequential" class="w-5 h-5 accent-green-600">
-                        <div class="ml-3">
-                            <span class="block font-bold text-sm text-gray-800">1. เรียงลำดับ (Sequential) [Default]</span>
-                            <span class="block text-xs text-gray-500">เรียงจากแบบ V1 ไปจนถึง V12 เมื่อโหลดหน้าใหม่</span>
-                        </div>
-                    </label>
-
-                    <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition">
-                        <input type="radio" name="ab-mode" value="random" class="w-5 h-5 accent-green-600">
-                        <div class="ml-3">
-                            <span class="block font-bold text-sm text-gray-800">2. สุ่มมั่ว (Random)</span>
-                            <span class="block text-xs text-gray-500">สุ่ม 1 ใน 12 รูปแบบอย่างอิสระทุกครั้ง</span>
-                        </div>
-                    </label>
-                </div>
-            </div>
-
-            <!-- ตั้งค่าเปิด/ปิด Test Mode Badge (3x2x2) -->
-            <div class="p-4 bg-gray-50 rounded-xl border">
-                <label class="flex items-center justify-between cursor-pointer">
-                    <div>
-                        <span class="block font-bold text-sm text-gray-800">เปิดใช้งาน Test Mode (แสดง Badge & ปุ่มเลือก)</span>
-                        <span class="block text-xs text-gray-500 mt-0.5">เวลารอ 3 วินาที / ปลดล็อคปุ่มหัวใจเลือก V1-V12</span>
-                    </div>
-                    <input type="checkbox" id="toggle-test-mode-badge" class="w-5 h-5 accent-green-600">
-                </label>
-            </div>
-
-            <!-- สถานะปัจจุบัน -->
-            <div class="p-4 bg-gray-50 rounded-xl border">
-                <p class="text-xs text-gray-600 font-mono space-y-1">
-                    <strong>สถานะปัจจุบัน:</strong><br>
-                    - โหมด: <span id="stat-mode-text" class="font-bold text-green-600">Sequential</span><br>
-                    - Variant ล่าสุด: <span id="stat-variant-text" class="font-bold text-green-600">V1</span><br>
-                    - รหัสรูปแบบ 3x2x2: <span id="stat-type-text" class="font-bold text-green-600">static-H-nE</span>
-                </p>
-                <button id="reset-index-btn" class="mt-3 text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 py-1.5 px-3 rounded-lg transition">
-                    <i class="fa-solid fa-rotate-left mr-1"></i> เริ่มต้นวน V1 ใหม่
-                </button>
-            </div>
-        </div>
-
-        <button id="save-settings-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition shadow-lg mt-6">
-            บันทึกและเริ่มทดสอบ
-        </button>
-    </div>
-
     <!-- หน้าเมนูหลัก -->
     <main id="main-app" class="flex-1 pb-24">
         
         <!-- ส่วนสื่อ Presentation -->
         <div class="relative w-full aspect-[4/3] bg-black">
-            
-            <div class="absolute top-3 left-3 right-3 z-40 flex justify-between items-center pointer-events-none">
-                <button id="top-back-btn" class="w-9 h-9 bg-black/40 text-white rounded-full flex items-center justify-center pointer-events-auto shadow backdrop-blur-sm">
-                    <i class="fa-solid fa-arrow-left text-base"></i>
-                </button>
-                <div class="flex items-center gap-2 pointer-events-auto">
-                    <a href="#setting" id="open-settings-link" class="w-9 h-9 bg-black/40 text-white rounded-full flex items-center justify-center shadow backdrop-blur-sm hidden">
-                        <i class="fa-solid fa-gear text-sm"></i>
-                    </a>
-                    <!-- ปุ่มหัวใจสำหรับเลือกรูปแบบ V1-V12 (ไม่มีสีแดง) -->
-                    <button id="heart-variant-btn" class="w-9 h-9 bg-black/40 text-white rounded-full flex items-center justify-center shadow backdrop-blur-sm hidden hover:bg-black/60 transition active:scale-95">
-                        <i class="fa-solid fa-heart text-base"></i>
-                    </button>
-                </div>
-            </div>
-
             <!-- รูปแบบ 1: ภาพนิ่ง -->
             <section id="variant-static" class="w-full h-full relative hidden">
                 <img src="image1.png" alt="แกงมัสมั่นไก่" class="w-full h-full object-cover">
-                <span id="badge-static" class="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-2.5 py-1 rounded-full font-mono z-30 hidden"></span>
             </section>
 
-            <!-- รูปแบบ 2: วิดีโอ 8 FPS (เอา loop ออกเพื่อให้เล่นรอบเดียวค้างเฟรมสุดท้าย) -->
+            <!-- รูปแบบ 2: วิดีโอ 8 FPS -->
             <section id="variant-video-8fps" class="w-full h-full relative hidden">
-                <video id="product-video-8fps" class="w-full h-full object-cover" autoplay muted playsinline>
+                <video id="product-video-8fps" class="w-full h-full object-cover" muted playsinline>
                     <source src="video_8fps.mp4" type="video/mp4">
                 </video>
-                <button id="mute-btn-8fps" class="absolute bottom-3 left-3 bg-black/60 text-white w-8 h-8 rounded-full flex items-center justify-center z-30">
-                    <i id="mute-icon-8fps" class="fa-solid fa-volume-xmark"></i>
-                </button>
-                <span id="badge-8fps" class="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-2.5 py-1 rounded-full font-mono z-30 hidden"></span>
             </section>
 
-            <!-- รูปแบบ 3: วิดีโอ 60 FPS (เอา loop ออกเพื่อให้เล่นรอบเดียวค้างเฟรมสุดท้าย) -->
+            <!-- รูปแบบ 3: วิดีโอ 60 FPS -->
             <section id="variant-video-60fps" class="w-full h-full relative hidden">
-                <video id="product-video-60fps" class="w-full h-full object-cover" autoplay muted playsinline>
+                <video id="product-video-60fps" class="w-full h-full object-cover" muted playsinline>
                     <source src="video_60fps.mp4" type="video/mp4">
                 </video>
-                <button id="mute-btn-60fps" class="absolute bottom-3 left-3 bg-black/60 text-white w-8 h-8 rounded-full flex items-center justify-center z-30">
-                    <i id="mute-icon-60fps" class="fa-solid fa-volume-xmark"></i>
-                </button>
-                <span id="badge-60fps" class="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-2.5 py-1 rounded-full font-mono z-30 hidden"></span>
             </section>
         </div>
         
@@ -184,16 +101,15 @@
 
             <div id="product-social-proof" class="inline-flex items-center gap-1.5 text-base font-semibold text-gray-900 bg-gray-600/10 border border-gray-300/60 rounded-md px-2.5 py-1 mt-2">
                  <i class="fa-solid fa-star text-yellow-400"></i>
-                <span>ขายแล้ว 500 จาน • ผู้ซื้อ 85% กดถูกใจ</span>
+                <span>ขายแล้ว 500 จาน</span>
             </div>
 
-            <p id="product-desc" class="text-sm font-semibold italic text-gray-900 mt-2 w-full leading-relaxed">
-                แกงมัสมั่นไก่ที่เลือกสรรเนื้อไก่มีคุณภาพ...
-            </p>
+            <p id="product-desc" class="text-sm font-semibold italic text-gray-900 mt-2 w-full leading-relaxed"></p>
         </div>
     </main>
 
-    <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white p-4 border-t shadow-lg z-50 flex items-center gap-4">
+    <!-- Footer แบบ e-commerce -->
+    <footer id="app-footer" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white p-4 border-t shadow-lg z-50 flex items-center gap-4">
         <div class="flex items-center border rounded-lg p-2 gap-4">
             <button class="text-gray-500 font-bold text-lg px-2">-</button>
             <span class="font-bold">1</span>
@@ -207,13 +123,7 @@
 
     <script>
         // ==========================================
-        // 0. ตั้งค่า Google Form Integration
-        // ==========================================
-        const GOOGLE_FORM_BASE_URL = "https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform"; 
-        const GOOGLE_FORM_ENTRY_ID = "entry.123456789"; 
-
-        // ==========================================
-        // 1. คลังตัวเลือกองค์ประกอบทั้งหมด (3 x 2 x 2)
+        // 1. กำหนด Dataset โครงสร้าง 3x2x2
         // ==========================================
         const PRESENTATIONS = [
             { id: 'static', code: 'static' },
@@ -235,97 +145,41 @@
         ];
 
         const SOCIAL_PROOFS = [
-            { code: 'nE', html: '</i> ขายแล้ว 500 จาน' },
-            { code: 'E', html: '</i> ขายแล้ว 500 จาน ผู้ซื้อ 85% กดถูกใจ' }
+            { code: 'nE', html: '<i class="fa-solid fa-star text-yellow-400"></i> ขายแล้ว 500 จาน' },
+            { code: 'E', html: '<i class="fa-solid fa-star text-yellow-400"></i> ขายแล้ว 500 จาน • ผู้ซื้อ 85% กดถูกใจ' }
         ];
 
-        // ==========================================
-        // 2. สร้าง Matrix Variants ทั้งหมด 12 รูปแบบ
-        // ==========================================
+        // สร้าง 12 Variants ตามลำดับ เพื่อให้แมปกับ #1-#12 อย่างแม่นยำ
         const MATRIX_VARIANTS = [];
-        let variantIdCounter = 1;
-
         PRESENTATIONS.forEach((pres) => {
-            DESCRIPTIONS.forEach((descObj, descIndex) => {
-                SOCIAL_PROOFS.forEach((proofObj, proofIndex) => {
+            DESCRIPTIONS.forEach((descObj) => {
+                SOCIAL_PROOFS.forEach((proofObj) => {
                     MATRIX_VARIANTS.push({
-                        variantId: `V${variantIdCounter}`,
-                        idNum: variantIdCounter,
                         presentation: pres.id,
-                        presCode: pres.code,
-                        descriptionIndex: descIndex,
                         descriptionData: descObj,
-                        descCode: descObj.code,
-                        socialProofIndex: proofIndex,
-                        socialProofHtml: proofObj.html,
-                        proofCode: proofObj.code,
-                        typeLabel: `[V${variantIdCounter}] ${pres.code}-${descObj.code}-${proofObj.code}`,
-                        shortLabel: `${pres.code}-${descObj.code}-${proofObj.code}`
+                        socialProofHtml: proofObj.html
                     });
-                    variantIdCounter++;
                 });
             });
         });
 
         // ==========================================
-        // 3. สถานะการสุ่ม และสถานะ Test Mode
+        // 2. ตัวแปรสถานะหลักและการแสดงผล
         // ==========================================
-        let abTestMode = localStorage.getItem('ab_test_mode') || 'sequential';
-        let showTestBadge = localStorage.getItem('ab_test_show_badge') !== 'false'; 
-
-        const REQUIRED_TIME = showTestBadge ? 3 : 15;
-
-        let currentIndex = 0;
-
-        if (showTestBadge) {
-            let storedIndex = localStorage.getItem('ab_test_matrix_index');
-            currentIndex = (storedIndex === null) ? 0 : parseInt(storedIndex);
-        } else {
-            if (abTestMode === 'random') {
-                currentIndex = Math.floor(Math.random() * MATRIX_VARIANTS.length);
-            } else {
-                let lastIndex = localStorage.getItem('ab_test_matrix_index');
-                currentIndex = (lastIndex === null) 
-                    ? 0 
-                    : (parseInt(lastIndex) + 1) % MATRIX_VARIANTS.length;
-            }
-            localStorage.setItem('ab_test_matrix_index', currentIndex);
-        }
-
-        // ==========================================
-        // 4. ระบบตัวนับถอยหลัง & Custom Toast
-        // ==========================================
+        const REQUIRED_TIME = 15;
         let remainingSeconds = REQUIRED_TIME;
-        let countdownTimer = null;
-        let isIntentionalExit = false;
+        let timerInterval = null;
+        let isDone = false;
+        let hasStartedVideo = false;
+        let currentVariantIndex = -1;
 
-        function openFullscreen() {
-            const elem = document.documentElement;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen().catch(() => {});
-            } else if (elem.webkitRequestFullscreen) { /* Safari */
-                elem.webkitRequestFullscreen();
-            } else if (elem.msRequestFullscreen) { /* IE11 */
-                elem.msRequestFullscreen();
-            }
-        }
-
-        function closeFullscreen() {
-            if (document.exitFullscreen) {
-                document.exitFullscreen().catch(() => {});
-            } else if (document.webkitExitFullscreen) { 
-                document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) { 
-                document.msExitFullscreen();
-            }
-        }
-
+        // ==========================================
+        // 3. ระบบ Toast Warning
+        // ==========================================
         let toastTimeout = null;
         function showCustomToast(message) {
             const toast = document.getElementById('custom-toast');
-            const toastText = document.getElementById('toast-text');
-            
-            toastText.innerText = message;
+            document.getElementById('toast-text').innerText = message;
             
             toast.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-2');
             toast.classList.add('opacity-100', 'translate-y-0');
@@ -337,321 +191,153 @@
             }, 2500);
         }
 
-        function triggerTimeWarning() {
-            if (remainingSeconds > 0) {
-                showCustomToast(`คุณต้องอยู่ในหน้านี้อีก ${remainingSeconds} วินาที`);
-            } else {
-                showCustomToast(`ครบเวลาแล้ว คุณสามารถกดปุ่ม "กลับสู่การทำแบบสอบถาม" ได้เลย`);
+        // ==========================================
+        // 4. ระบบจัดการ URL Hash
+        // ==========================================
+        function parseHashAndRender() {
+            const hash = window.location.hash;
+            const match = hash.match(/^#([1-9]|1[0-2])$/); // ดักจับ #1 ถึง #12
+            
+            if (!match) {
+                // หาก Hash ไม่ถูกต้อง ให้บังคับขึ้นหน้า Error ห้ามสุ่ม
+                document.getElementById('error-screen').classList.remove('hidden');
+                document.getElementById('error-screen').classList.add('flex');
+                document.getElementById('fullscreen-overlay').classList.add('hidden');
+                document.getElementById('main-app').classList.add('hidden');
+                document.getElementById('app-footer').classList.add('hidden');
+                return false;
             }
-        }
 
-        // ==========================================
-        // 5. ระบบดักจับการย้อนกลับ & ล็อค Fullscreen
-        // ==========================================
-        function setupBackAndFullscreenLock() {
-            history.pushState({ page: 'ab_test' }, "", location.href);
-            history.pushState({ page: 'ab_test' }, "", location.href);
+            currentVariantIndex = parseInt(match[1]) - 1;
+            const variant = MATRIX_VARIANTS[currentVariantIndex];
 
-            window.addEventListener('popstate', () => {
-                if (window.location.hash === '#setting') return;
-
-                if (showTestBadge) return;
-
-                history.pushState({ page: 'ab_test' }, "", location.href);
-                triggerTimeWarning();
-
-                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                    openFullscreen();
-                }
-            });
-
-            const handleFullscreenChange = () => {
-                const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
-                
-                if (!isFullscreen && !showTestBadge && !isIntentionalExit) {
-                    triggerTimeWarning();
-
-                    const restoreFullscreen = () => {
-                        openFullscreen();
-                        document.removeEventListener('touchstart', restoreFullscreen);
-                        document.removeEventListener('click', restoreFullscreen);
-                    };
-                    document.addEventListener('touchstart', restoreFullscreen, { once: true });
-                    document.addEventListener('click', restoreFullscreen, { once: true });
-                }
-            };
-
-            document.addEventListener('fullscreenchange', handleFullscreenChange);
-            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-        }
-
-        const startFullscreenBtn = document.getElementById('start-fullscreen-btn');
-        const fullscreenOverlay = document.getElementById('fullscreen-overlay');
-        const returnSurveyBtn = document.getElementById('return-survey-btn');
-
-        if (startFullscreenBtn) {
-            startFullscreenBtn.addEventListener('click', () => {
-                openFullscreen();
-                fullscreenOverlay.classList.add('hidden');
-                setupBackAndFullscreenLock();
-
-                remainingSeconds = REQUIRED_TIME;
-                if (countdownTimer) clearInterval(countdownTimer);
-
-                countdownTimer = setInterval(() => {
-                    remainingSeconds--;
-                    if (remainingSeconds <= 0) {
-                        clearInterval(countdownTimer);
-                        if (returnSurveyBtn && !showTestBadge) {
-                            returnSurveyBtn.classList.remove('hidden');
-                        }
-                    }
-                }, 1000);
-            });
-        }
-
-        document.getElementById('add-to-cart-btn').addEventListener('click', () => {
-            if (!showTestBadge) {
-                triggerTimeWarning();
-            }
-        });
-
-        document.getElementById('top-back-btn').addEventListener('click', () => {
-            if (!showTestBadge) {
-                triggerTimeWarning();
-            } else {
-                history.back();
-            }
-        });
-
-        if (returnSurveyBtn) {
-            returnSurveyBtn.addEventListener('click', () => {
-                isIntentionalExit = true;
-                closeFullscreen();
-
-                if (showTestBadge) {
-                    location.reload();
-                } else {
-                    const currentVar = MATRIX_VARIANTS[currentIndex];
-                    const variantData = encodeURIComponent(currentVar.typeLabel);
-                    const finalSurveyUrl = `${GOOGLE_FORM_BASE_URL}?usp=pp_url&${GOOGLE_FORM_ENTRY_ID}=${variantData}`;
-                    window.location.href = finalSurveyUrl;
-                }
-            });
-        }
-
-        // ==========================================
-        // 6. ฟังก์ชันสลับรูปแบบและแสดงผล (Dynamic Switch)
-        // ==========================================
-        function switchVariant(index) {
-            currentIndex = index;
-            localStorage.setItem('ab_test_matrix_index', currentIndex);
-            const variant = MATRIX_VARIANTS[currentIndex];
-
-            const vid8 = document.getElementById('product-video-8fps');
-            const vid60 = document.getElementById('product-video-60fps');
-            if (vid8) vid8.pause();
-            if (vid60) vid60.pause();
-
-            document.getElementById('variant-static').classList.add('hidden');
-            document.getElementById('variant-video-8fps').classList.add('hidden');
-            document.getElementById('variant-video-60fps').classList.add('hidden');
-
+            // กำหนดข้อมูลสินค้า
             document.getElementById('product-title').innerText = variant.descriptionData.title;
             document.getElementById('product-desc').innerText = variant.descriptionData.desc;
             document.getElementById('product-social-proof').innerHTML = variant.socialProofHtml;
 
-            let activeBadgeEl = null;
-
+            // แสดงหน้าจอที่ถูกต้อง
             if (variant.presentation === 'static') {
                 document.getElementById('variant-static').classList.remove('hidden');
-                activeBadgeEl = document.getElementById('badge-static');
             } else if (variant.presentation === 'video_8fps') {
                 document.getElementById('variant-video-8fps').classList.remove('hidden');
-                activeBadgeEl = document.getElementById('badge-8fps');
-                setupVideo('product-video-8fps', 'mute-btn-8fps', 'mute-icon-8fps');
             } else if (variant.presentation === 'video_60fps') {
                 document.getElementById('variant-video-60fps').classList.remove('hidden');
-                activeBadgeEl = document.getElementById('badge-60fps');
-                setupVideo('product-video-60fps', 'mute-btn-60fps', 'mute-icon-60fps');
             }
 
-            if (activeBadgeEl) {
-                activeBadgeEl.innerText = variant.typeLabel;
-                if (showTestBadge) {
-                    activeBadgeEl.classList.remove('hidden');
-                } else {
-                    activeBadgeEl.classList.add('hidden');
-                }
-            }
-
-            const statVariantText = document.getElementById('stat-variant-text');
-            const statTypeText = document.getElementById('stat-type-text');
-            if (statVariantText) statVariantText.innerText = variant.variantId;
-            if (statTypeText) statTypeText.innerText = variant.shortLabel;
-        }
-
-        function initApp() {
-            const requiredTimeNote = document.getElementById('required-time-note');
-            if (requiredTimeNote) {
-                requiredTimeNote.innerText = `*ผู้ใช้งานจะต้องอยู่ในหน้านี้อย่างน้อย ${REQUIRED_TIME} วินาที`;
-            }
-
-            const openSettingsLink = document.getElementById('open-settings-link');
-            if (openSettingsLink) {
-                if (showTestBadge) {
-                    openSettingsLink.classList.remove('hidden');
-                } else {
-                    openSettingsLink.classList.add('hidden');
-                }
-            }
-
-            const heartBtn = document.getElementById('heart-variant-btn');
-            if (heartBtn) {
-                if (showTestBadge) {
-                    heartBtn.classList.remove('hidden');
-                } else {
-                    heartBtn.classList.add('hidden');
-                }
-            }
-
-            switchVariant(currentIndex);
-            setupVariantPickerModal();
-        }
-
-        function setupVariantPickerModal() {
-            const heartBtn = document.getElementById('heart-variant-btn');
-            const variantModal = document.getElementById('variant-picker-modal');
-            const variantContainer = document.getElementById('variant-list-container');
-            const closeBtn = document.getElementById('close-variant-modal');
-
-            if (!heartBtn || !variantModal || !variantContainer) return;
-
-            heartBtn.addEventListener('click', () => {
-                if (!showTestBadge) return;
-
-                variantContainer.innerHTML = '';
-                MATRIX_VARIANTS.forEach((v, index) => {
-                    const isCurrent = index === currentIndex;
-                    const btn = document.createElement('button');
-                    btn.className = `w-full text-left p-3 rounded-2xl border transition flex items-center justify-between text-xs font-mono ${
-                        isCurrent 
-                            ? 'bg-green-50 border-green-500 text-green-700 font-bold shadow-sm' 
-                            : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
-                    }`;
-                    btn.innerHTML = `
-                        <div class="flex items-center gap-2">
-                            <span class="w-6 h-6 rounded-full ${isCurrent ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'} flex items-center justify-center text-[10px] font-bold">V${v.idNum}</span>
-                            <span>${v.shortLabel}</span>
-                        </div>
-                        ${isCurrent ? '<i class="fa-solid fa-check text-green-600"></i>' : ''}
-                    `;
-                    btn.addEventListener('click', () => {
-                        switchVariant(index);
-                        variantModal.classList.add('hidden');
-                        variantModal.classList.remove('flex');
-                    });
-                    variantContainer.appendChild(btn);
-                });
-
-                variantModal.classList.remove('hidden');
-                variantModal.classList.add('flex');
-            });
-
-            if (closeBtn) {
-                closeBtn.addEventListener('click', () => {
-                    variantModal.classList.add('hidden');
-                    variantModal.classList.remove('flex');
-                });
-            }
-        }
-
-        function setupVideo(videoId, muteBtnId, muteIconId) {
-            const video = document.getElementById(videoId);
-            const muteBtn = document.getElementById(muteBtnId);
-            const muteIcon = document.getElementById(muteIconId);
-
-            video.currentTime = 0; // ย้อนกลับไปเริ่มที่วินาทีที่ 0 ทุกครั้งที่เปิดใช้งาน
-            video.play().catch(() => {});
-
-            muteBtn.onclick = () => {
-                video.muted = !video.muted;
-                muteIcon.className = video.muted ? "fa-solid fa-volume-xmark" : "fa-solid fa-volume-high";
-            };
+            return true;
         }
 
         // ==========================================
-        // 7. ระบบจัดการหน้า /setting
+        // 5. ระบบ Fullscreen และ Timer
         // ==========================================
-        const settingsScreen = document.getElementById('settings-screen');
-        const statModeText = document.getElementById('stat-mode-text');
-        const statVariantText = document.getElementById('stat-variant-text');
-        const statTypeText = document.getElementById('stat-type-text');
-        const toggleTestBadge = document.getElementById('toggle-test-mode-badge');
+        function openFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) { elem.requestFullscreen().catch(() => {}); } 
+            else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); } 
+            else if (elem.msRequestFullscreen) { elem.msRequestFullscreen(); }
+        }
 
-        function checkSettingsRoute() {
-            if (window.location.hash === '#setting' || window.location.pathname.endsWith('/setting')) {
-                const currentVar = MATRIX_VARIANTS[currentIndex];
-                if (statModeText) statModeText.innerText = abTestMode === 'sequential' ? 'เรียงลำดับ (Sequential)' : 'สุ่มมั่ว (Random)';
-                if (statVariantText) statVariantText.innerText = currentVar.variantId;
-                if (statTypeText) statTypeText.innerText = currentVar.shortLabel;
-                
-                const currentModeInput = document.querySelector(`input[name="ab-mode"][value="${abTestMode}"]`);
-                if (currentModeInput) currentModeInput.checked = true;
-                if (toggleTestBadge) toggleTestBadge.checked = showTestBadge;
+        function closeFullscreen() {
+            if (document.exitFullscreen) { document.exitFullscreen().catch(() => {}); } 
+            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); } 
+            else if (document.msExitFullscreen) { document.msExitFullscreen(); }
+        }
 
-                if (settingsScreen) {
-                    settingsScreen.classList.remove('hidden');
-                    settingsScreen.classList.add('flex');
+        function startTimer() {
+            if (timerInterval) return;
+            timerInterval = setInterval(() => {
+                remainingSeconds--;
+                if (remainingSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    isDone = true;
+                    document.getElementById('return-survey-btn').classList.remove('hidden');
                 }
-            } else {
-                if (settingsScreen) {
-                    settingsScreen.classList.add('hidden');
-                    settingsScreen.classList.remove('flex');
-                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
             }
         }
 
-        window.addEventListener('hashchange', checkSettingsRoute);
-
-        const closeSettingsBtn = document.getElementById('close-settings-btn');
-        if (closeSettingsBtn) {
-            closeSettingsBtn.addEventListener('click', () => {
-                window.location.hash = '';
-            });
-        }
-
-        const resetIndexBtn = document.getElementById('reset-index-btn');
-        if (resetIndexBtn) {
-            resetIndexBtn.addEventListener('click', () => {
-                switchVariant(0);
-                showCustomToast("เริ่มวน V1 ใหม่เรียบร้อยแล้ว");
-            });
-        }
-
-        const saveSettingsBtn = document.getElementById('save-settings-btn');
-        if (saveSettingsBtn) {
-            saveSettingsBtn.addEventListener('click', () => {
-                const selectedMode = document.querySelector('input[name="ab-mode"]:checked');
-                if (selectedMode) {
-                    abTestMode = selectedMode.value;
-                    localStorage.setItem('ab_test_mode', abTestMode);
+        // เริ่มต้นการทดสอบและ Timer
+        document.getElementById('start-fullscreen-btn').addEventListener('click', () => {
+            openFullscreen();
+            document.getElementById('fullscreen-overlay').classList.add('hidden');
+            
+            // เริ่มเล่นวิดีโอ (เล่นรอบเดียวตามที่ตั้งไว้ใน HTML tag ที่ไม่มี loop)
+            if (!hasStartedVideo) {
+                hasStartedVideo = true;
+                const variant = MATRIX_VARIANTS[currentVariantIndex];
+                if (variant.presentation === 'video_8fps') {
+                    const v8 = document.getElementById('product-video-8fps');
+                    v8.currentTime = 0;
+                    v8.play().catch(()=>{});
+                } else if (variant.presentation === 'video_60fps') {
+                    const v60 = document.getElementById('product-video-60fps');
+                    v60.currentTime = 0;
+                    v60.play().catch(()=>{});
                 }
-
-                if (toggleTestBadge) {
-                    showTestBadge = toggleTestBadge.checked;
-                    localStorage.setItem('ab_test_show_badge', showTestBadge ? 'true' : 'false');
-                }
-
-                window.location.hash = '';
-                location.reload();
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initApp();
-            checkSettingsRoute();
+            }
+            startTimer();
         });
+
+        // ==========================================
+        // 6. ดักจับการออกจาก Fullscreen ก่อนเวลา
+        // ==========================================
+        const handleFullscreenChange = () => {
+            const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
+            
+            if (!isFullscreen && hasStartedVideo && !isDone) {
+                // ออกก่อนเวลาบังคับหยุด Timer และแสดง Overlay กลับไปหน้าเต็มจอ
+                pauseTimer();
+                document.getElementById('fullscreen-overlay').classList.remove('hidden');
+                document.getElementById('required-time-note').innerText = `*กรุณากลับเข้าสู่โหมดเต็มจอเพื่อดูต่อ (เหลือเวลา ${remainingSeconds} วินาที)`;
+            } else if (isFullscreen && hasStartedVideo && !isDone) {
+                // กลับเข้าสู่ Fullscreen แล้วให้ Timer เดินต่อ
+                startTimer();
+            }
+        };
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+
+        // ==========================================
+        // 7. จัดการปุ่มต่างๆ
+        // ==========================================
+        
+        // ปุ่มใส่ตะกร้า (Mockup)
+        document.getElementById('add-to-cart-btn').addEventListener('click', () => {
+            if (!isDone) {
+                showCustomToast(`กรุณารอจนครบเวลา (เหลืออีก ${remainingSeconds} วินาที)`);
+            } else {
+                showCustomToast(`ดูสิ่งเร้าครบเวลาแล้ว กรุณากดปุ่ม "กลับสู่การทำแบบสอบถาม" ด้านบน`);
+            }
+        });
+
+        // ปุ่มกลับสู่การทำแบบสอบถาม (แสดงผลหลังครบ 15 วินาที)
+        document.getElementById('return-survey-btn').addEventListener('click', () => {
+            closeFullscreen();
+            document.getElementById('return-survey-btn').classList.add('hidden');
+            document.getElementById('main-app').classList.add('hidden');
+            document.getElementById('app-footer').classList.add('hidden');
+            
+            // แสดงหน้าจอ Done ค้างไว้ ไม่ Redirect ไปไหนเพื่อให้ผู้ชมตอบแบบสอบถามใน Qualtrics iframe ต่อ
+            document.getElementById('done-screen').classList.remove('hidden');
+            document.getElementById('done-screen').classList.add('flex');
+        });
+
+        // ==========================================
+        // 8. Init App
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            parseHashAndRender();
+        });
+
     </script>
 </body>
 </html>
