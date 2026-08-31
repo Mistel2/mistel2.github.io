@@ -214,18 +214,50 @@
             document.getElementById('product-price').innerText = priceText;
             document.getElementById('cart-price').innerText = priceText;
 
-            // 2. ตั้งค่าชื่อและข้อความคำอธิบาย (แยกแต่ละบรรทัด ยืดเต็มขอบซ้าย-ขวา ยกเว้นบรรทัดสุดท้าย)
+            // 2. ตั้งค่าชื่อและข้อความคำอธิบาย
             document.getElementById('product-title').innerText = variant.descriptionData.title;
             const descElem = document.getElementById('product-desc');
             
             const lines = (variant.descriptionData.desc || '').split('\n');
+            
+            // สร้างโครงสร้างแต่ละบรรทัด
             descElem.innerHTML = lines.map((line, index) => {
                 const isLast = index === lines.length - 1;
-                const alignClass = isLast 
-                    ? 'text-left' 
-                    : 'text-justify [text-align-last:justify] [text-justify:inter-character]';
-                return `<div class="${alignClass} [word-break:break-all]">${line}</div>`;
+                if (isLast) {
+                    return `<div class="last-line text-left [word-break:break-all]">${line}</div>`;
+                }
+                return `<div class="first-line text-justify [text-align-last:justify] [text-justify:inter-character] [word-break:break-all]">${line}</div>`;
             }).join('');
+            
+            // คำนวณหาค่าระยะห่างตัวอักษร (Letter Spacing) จากบรรทัดแรกอัตโนมัติ
+            document.fonts.ready.then(() => {
+                const firstLine = descElem.querySelector('.first-line');
+                const lastLine = descElem.querySelector('.last-line');
+            
+                if (firstLine && lastLine) {
+                    // สร้าง Element ชั่วคราวเพื่อวัดความกว้างจริงของบรรทัดแรก (แบบไม่ยืด)
+                    const tempSpan = document.createElement('span');
+                    const style = window.getComputedStyle(firstLine);
+                    tempSpan.style.font = style.font;
+                    tempSpan.style.visibility = 'hidden';
+                    tempSpan.style.position = 'absolute';
+                    tempSpan.style.whiteSpace = 'nowrap';
+                    tempSpan.innerText = firstLine.innerText;
+                    document.body.appendChild(tempSpan);
+            
+                    const containerWidth = firstLine.clientWidth;
+                    const naturalWidth = tempSpan.getBoundingClientRect().width;
+                    document.body.removeChild(tempSpan);
+            
+                    const charCount = firstLine.innerText.length;
+                    
+                    // คำนวณระยะห่างส่วนเกินที่ถูกยืด ออกมาเป็น px ต่อตัวอักษร
+                    if (charCount > 1 && containerWidth > naturalWidth) {
+                        const autoSpacing = (containerWidth - naturalWidth) / (charCount - 1);
+                        lastLine.style.letterSpacing = `${autoSpacing}px`;
+                    }
+                }
+            });
 
             // 3. ปรับแต่งรูปแบบตัวอักษร (Typography Styles) จาก JSON โดยตรง
             const styleConfig = variant.descriptionData.style || {};
