@@ -235,7 +235,8 @@
 
             // 4. ประกอบ Social Proof จากโครงสร้าง JSON
             const proof = variant.socialProofData;
-            document.getElementById('product-social-proof').innerHTML = `<i class="${proof.iconClass}"></i> <span>${proof.text}</span>`;
+            const iconHTML = proof.iconClass ? `<i class="${proof.iconClass}"></i>` : '';
+            document.getElementById('product-social-proof').innerHTML = `${iconHTML} <span>${proof.text}</span>`;
 
             // 5. จัดการการแสดงผลสื่อ Presentation
             document.getElementById('variant-static').classList.add('hidden');
