@@ -1,0 +1,95 @@
+{
+  "settings": {
+    "requiredTimeSeconds": 15,
+    "productPrice": "89",
+    "currencySymbol": "฿"
+  },
+  "fonts": [
+    {
+      "name": "Sriracha",
+      "url": "https://fonts.googleapis.com/css2?family=Sriracha&display=swap",
+      "fontFamily": "'Sriracha', cursive"
+    }
+  ],
+  "presentations": [
+    {
+      "id": "static",
+      "code": "static",
+      "type": "image",
+      "src": "image1.png"
+    },
+    {
+      "id": "video_8fps",
+      "code": "8fps",
+      "type": "video",
+      "src": "video_8fps.mp4"
+    },
+    {
+      "id": "video_60fps",
+      "code": "60fps",
+      "type": "video",
+      "src": "video_60fps.mp4"
+    }
+  ],
+  "descriptions": [
+    {
+      "code": "U",
+      "type": "Utilitarian",
+      "title": "แกงมัสมั่นไก่",
+      "desc": "สารอาหารครบถ้วน อิ่มท้องนานพลังงานสูง แกงมัสมั่นน่องไก่อุดมไปด้วยโปรตีน พร้อมคาร์โบไฮเดรตจากมันฝรั่ง และไขมันดีจากเม็ดมะม่วงหิมพานต์ ผสานเครื่องเทศมีส่วนช่วยระบบย่อยอาหาร",
+      "style": {
+        "fontName": "system-ui",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "isItalic": false
+      }
+    },
+    {
+      "code": "H",
+      "type": "Hedonic",
+      "title": "แกงมัสมั่นไก่",
+      "desc": "ต้นตำรับอาหารชาววังเนื้อไก่นุ่มชุ่มทะลักในปาก จัดจ้านถึงเครื่องเทศตำรับอินเดีย เคี่ยวกะทิหอมมัน เพลิดเพลินกับเม็ดมะม่วงหิมพานต์คั่วกรอบ อร่อยแสงออกปาก",
+      "style": {
+        "fontName": "Sriracha",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "isItalic": false
+      }
+    }
+  ],
+"socialProofs": [
+    {
+      "code": "nE",
+      "iconClass": "fa-solid fa-star text-yellow-400",
+      "text": "ขายแล้ว 500 จาน"
+    },
+    {
+      "code": "E",
+      "iconClass": "fa-solid fa-star text-yellow-400",
+      "text": "ผู้ซื้อ 85% กดถูกใจ"
+    }
+  ],
+  "uiTexts": {
+    "returnSurveyBtn": "กลับสู่การทำแบบสอบถาม",
+    "addToCartBtn": "ใส่ตะกร้า",
+    "toast": {
+      "default": "คุณต้องอยู่ในหน้านี้อีกสักครู่",
+      "waitTimer": "กรุณารอจนครบเวลา (เหลืออีก {seconds} วินาที)",
+      "completed": "ดูสิ่งเร้าครบเวลาแล้ว กรุณากดปุ่ม \"กลับสู่การทำแบบสอบถาม\" ด้านบน"
+    },
+    "fullscreenOverlay": {
+      "title": "เข้าสู่โหมดเต็มจอ",
+      "requiredTimeNote": "*ผู้ใช้งานจะต้องอยู่ในหน้านี้อย่างน้อย {seconds} วินาที",
+      "resumeTimeNote": "*กรุณากลับเข้าสู่โหมดเต็มจอเพื่อดูต่อ (เหลือเวลา {seconds} วินาที)",
+      "buttonText": "เปิดโหมดเต็มจอ"
+    },
+    "errorScreen": {
+      "title": "เกิดข้อผิดพลาดในการโหลดสิ่งเร้า",
+      "message": "ไม่พบรหัสรูปแบบการทดสอบที่ถูกต้อง (Invalid URL Hash)<br>กรุณาติดต่อผู้วิจัยเพื่อตรวจสอบลิงก์"
+    },
+    "doneScreen": {
+      "title": "ดูสิ่งเร้าเรียบร้อยแล้ว",
+      "message": "กรุณาตอบแบบสอบถามต่อในหน้า Qualtrics"
+    }
+  }
+}
