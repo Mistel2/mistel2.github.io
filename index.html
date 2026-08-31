@@ -93,7 +93,7 @@
             <div id="product-social-proof" class="inline-flex items-center gap-1.5 text-base font-semibold text-gray-900 bg-gray-600/10 border border-gray-300/60 rounded-md px-2.5 py-1 mt-2">
             </div>
 
-            <p id="product-desc" class="mt-2 w-full leading-relaxed text-justify [text-align-last:justify] [text-justify:inter-character] whitespace-pre-line [word-break:break-all]"></p>
+            <div id="product-desc" class="mt-2 w-full leading-relaxed"></div>
         </div>
     </main>
 
@@ -214,10 +214,18 @@
             document.getElementById('product-price').innerText = priceText;
             document.getElementById('cart-price').innerText = priceText;
 
-            // 2. ตั้งค่าชื่อและข้อความคำอธิบาย
+            // 2. ตั้งค่าชื่อและข้อความคำอธิบาย (แยกแต่ละบรรทัด ยืดเต็มขอบซ้าย-ขวา ยกเว้นบรรทัดสุดท้าย)
             document.getElementById('product-title').innerText = variant.descriptionData.title;
             const descElem = document.getElementById('product-desc');
-            descElem.innerText = variant.descriptionData.desc;
+            
+            const lines = (variant.descriptionData.desc || '').split('\n');
+            descElem.innerHTML = lines.map((line, index) => {
+                const isLast = index === lines.length - 1;
+                const alignClass = isLast 
+                    ? 'text-left' 
+                    : 'text-justify [text-align-last:justify] [text-justify:inter-character]';
+                return `<div class="${alignClass} [word-break:break-all]">${line}</div>`;
+            }).join('');
 
             // 3. ปรับแต่งรูปแบบตัวอักษร (Typography Styles) จาก JSON โดยตรง
             const styleConfig = variant.descriptionData.style || {};
