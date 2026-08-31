@@ -60,12 +60,12 @@
 "socialProofs": [
     {
       "code": "nE",
-      "iconClass": "fa-solid fa-star text-yellow-400",
+      "iconClass": "",
       "text": "ขายแล้ว 500 จาน"
     },
     {
       "code": "E",
-      "iconClass": "fa-solid fa-star text-yellow-400",
+      "iconClass": "",
       "text": "ผู้ซื้อ 85% กดถูกใจ"
     }
   ],
