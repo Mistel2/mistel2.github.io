@@ -6,9 +6,9 @@
   },
   "fonts": [
     {
-      "name": "Sriracha",
-      "url": "https://fonts.googleapis.com/css2?family=Sriracha&display=swap",
-      "fontFamily": "'Sriracha', cursive"
+      "name": "Playpen Sans Thai",
+      "url": "https://fonts.googleapis.com/css2?family=Playpen+Sans+Thai:wght@400;600;700&display=swap",
+      "fontFamily": "'Playpen Sans Thai', cursive"
     }
   ],
   "presentations": [
