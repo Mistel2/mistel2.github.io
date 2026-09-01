@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food Delivery A/B Test (Participant View)</title>
-    
+
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -17,18 +16,15 @@
     </style>
 </head>
 <body class="bg-gray-50 font-sans max-w-md mx-auto min-h-screen shadow-lg relative flex flex-col justify-between">
-
     <!-- Toast แจ้งเตือนแบบ Custom -->
     <div id="custom-toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-[10001] bg-gray-900/90 text-white text-xs sm:text-sm px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md border border-white/20 transition-all duration-300 opacity-0 pointer-events-none -translate-y-2 flex items-center gap-2 max-w-[90%] text-center">
         <i class="fa-solid fa-clock text-amber-400 text-base"></i>
         <span id="toast-text">คุณต้องอยู่ในหน้านี้อีกสักครู่</span>
     </div>
-
     <!-- ปุ่มกลับสู่การทำแบบสอบถาม -->
     <button id="return-survey-btn" class="fixed top-4 left-1/2 -translate-x-1/2 z-[10000] bg-black/80 hover:bg-black/90 text-white/100 font-bold text-sm px-5 py-3 rounded-full shadow-lg backdrop-blur-md border border-white/20 transition-all duration-500 hidden active:scale-95">
         <i class="fa-solid fa-arrow-left-long mr-1.5"></i><span id="return-survey-btn-text">กลับสู่การทำแบบสอบถาม</span>
     </button>
-
     <!-- หน้า Error -->
     <div id="error-screen" class="fixed inset-0 bg-white z-[10005] hidden flex-col items-center justify-center p-6 text-center">
         <i class="fa-solid fa-circle-exclamation text-5xl text-red-500 mb-4"></i>
@@ -38,14 +34,12 @@
             กรุณาติดต่อผู้วิจัยเพื่อตรวจสอบลิงก์
         </p>
     </div>
-
     <!-- หน้า Done -->
     <div id="done-screen" class="fixed inset-0 bg-white z-[10004] hidden flex-col items-center justify-center p-6 text-center">
         <i class="fa-solid fa-circle-check text-6xl text-green-500 mb-4"></i>
         <h2 id="done-title" class="text-2xl font-bold text-gray-800">ดูสิ่งเร้าเรียบร้อยแล้ว</h2>
         <p id="done-msg" class="text-gray-600 mt-2">กรุณาตอบแบบสอบถามต่อในหน้า Qualtrics</p>
     </div>
-
     <!-- Overlay เข้าสู่โหมดเต็มจอ -->
     <div id="fullscreen-overlay" class="fixed inset-0 z-[9999] bg-black/30 backdrop-blur-md flex flex-col items-center justify-center p-6 max-w-md mx-auto transition-all duration-300">
         <div class="bg-white/90 border border-white/40 p-6 rounded-3xl shadow-2xl backdrop-blur-lg flex flex-col items-center text-center max-w-xs w-full">
@@ -63,7 +57,6 @@
             </button>
         </div>
     </div>
-
     <!-- หน้าเมนูหลัก -->
     <main id="main-app" class="flex-1 pb-24">
         <div class="relative w-full aspect-[4/3] bg-black">
@@ -81,7 +74,7 @@
                 </video>
             </section>
         </div>
-        
+
         <div class="p-4 bg-white border-b">
             <div class="flex justify-between items-start gap-3">
                 <h2 id="product-title" class="text-lg font-semibold text-gray-700 flex-1"></h2>
@@ -89,14 +82,12 @@
                     <span id="product-price" class="text-lg text-gray-700"></span>
                 </div>
             </div>
-
             <div id="product-social-proof" class="inline-flex items-center gap-1.5 text-base font-semibold text-gray-900 bg-gray-600/10 border border-gray-300/60 rounded-md px-2.5 py-1 mt-2">
             </div>
 
-            <div id="product-desc" class="mt-2 w-full leading-relaxed text-justify [text-justify:inter-character] [word-break:break-word]"></div>
+            <div id="product-desc" class="mt-2 w-full leading-relaxed text-justify [text-justify:inter-character] [word-break:normal] [overflow-wrap:normal]"></div>
         </div>
     </main>
-
     <!-- Footer -->
     <footer id="app-footer" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white p-4 border-t shadow-lg z-50 flex items-center gap-4">
         <div class="flex items-center border rounded-lg p-2 gap-4">
@@ -109,7 +100,6 @@
             <span id="cart-price"></span>
         </button>
     </footer>
-
     <script>
         let CONFIG = null;
         let REQUIRED_TIME = 15;
@@ -119,17 +109,15 @@
         let hasStartedVideo = false;
         let currentVariantIndex = -1;
         let MATRIX_VARIANTS = [];
-
         async function loadConfig() {
             try {
                 const response = await fetch('config.json');
                 if (!response.ok) throw new Error('ไม่สามารถโหลดไฟล์ config.json ได้');
-                
+
                 CONFIG = await response.json();
-                
+
                 REQUIRED_TIME = CONFIG.settings.requiredTimeSeconds || 15;
                 remainingSeconds = REQUIRED_TIME;
-
                 // โหลด Google Fonts เข้าสู่เอกสาร
                 if (CONFIG.fonts && Array.isArray(CONFIG.fonts)) {
                     CONFIG.fonts.forEach(font => {
@@ -139,7 +127,6 @@
                         document.head.appendChild(linkElem);
                     });
                 }
-
                 // UI Texts
                 document.getElementById('return-survey-btn-text').innerText = CONFIG.uiTexts.returnSurveyBtn;
                 document.getElementById('overlay-title').innerText = CONFIG.uiTexts.fullscreenOverlay.title;
@@ -151,7 +138,6 @@
                 document.getElementById('done-title').innerText = CONFIG.uiTexts.doneScreen.title;
                 document.getElementById('done-msg').innerText = CONFIG.uiTexts.doneScreen.message;
                 document.getElementById('toast-text').innerText = CONFIG.uiTexts.toast.default;
-
                 // สร้าง Matrix Variants
                 MATRIX_VARIANTS = [];
                 CONFIG.presentations.forEach((pres) => {
@@ -165,7 +151,6 @@
                         });
                     });
                 });
-
                 parseHashAndRender();
 
             } catch (error) {
@@ -173,21 +158,18 @@
                 showErrorScreen();
             }
         }
-
         let toastTimeout = null;
         function showCustomToast(message) {
             const toast = document.getElementById('custom-toast');
             document.getElementById('toast-text').innerText = message;
             toast.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-2');
             toast.classList.add('opacity-100', 'translate-y-0');
-
             clearTimeout(toastTimeout);
             toastTimeout = setTimeout(() => {
                 toast.classList.remove('opacity-100', 'translate-y-0');
                 toast.classList.add('opacity-0', 'pointer-events-none', '-translate-y-2');
             }, 2500);
         }
-
         function showErrorScreen() {
             document.getElementById('error-screen').classList.remove('hidden');
             document.getElementById('error-screen').classList.add('flex');
@@ -195,12 +177,11 @@
             document.getElementById('main-app').classList.add('hidden');
             document.getElementById('app-footer').classList.add('hidden');
         }
-
         function parseHashAndRender() {
             const hash = window.location.hash;
             const maxCount = MATRIX_VARIANTS.length;
             const match = hash.match(/^#([1-9]|1[0-2])$/);
-            
+
             if (!match || parseInt(match[1]) > maxCount) {
                 showErrorScreen();
                 return false;
@@ -208,63 +189,19 @@
 
             currentVariantIndex = parseInt(match[1]) - 1;
             const variant = MATRIX_VARIANTS[currentVariantIndex];
-
             // 1. ตั้งค่าราคา
             const priceText = `${CONFIG.settings.currencySymbol}${CONFIG.settings.productPrice}`;
             document.getElementById('product-price').innerText = priceText;
             document.getElementById('cart-price').innerText = priceText;
-
             // 2. ตั้งค่าชื่อและข้อความคำอธิบาย
             document.getElementById('product-title').innerText = variant.descriptionData.title;
             const descElem = document.getElementById('product-desc');
-            
-            const lines = (variant.descriptionData.desc || '').split('\n');
-            
-            // สร้างโครงสร้างแต่ละบรรทัด
-            descElem.innerHTML = lines.map((line, index) => {
-                const isLast = index === lines.length - 1;
-                if (isLast) {
-                    return `<div class="last-line text-left [word-break:break-all]">${line}</div>`;
-                }
-                return `<div class="first-line text-justify [text-align-last:justify] [text-justify:inter-character] [word-break:break-all]">${line}</div>`;
-            }).join('');
-            
-            // คำนวณหาค่าระยะห่างตัวอักษร (Letter Spacing) จากบรรทัดแรกอัตโนมัติ
-            document.fonts.ready.then(() => {
-                const firstLine = descElem.querySelector('.first-line');
-                const lastLine = descElem.querySelector('.last-line');
-            
-                if (firstLine && lastLine) {
-                    // สร้าง Element ชั่วคราวเพื่อวัดความกว้างจริงของบรรทัดแรก (แบบไม่ยืด)
-                    const tempSpan = document.createElement('span');
-                    const style = window.getComputedStyle(firstLine);
-                    tempSpan.style.font = style.font;
-                    tempSpan.style.visibility = 'hidden';
-                    tempSpan.style.position = 'absolute';
-                    tempSpan.style.whiteSpace = 'nowrap';
-                    tempSpan.innerText = firstLine.innerText;
-                    document.body.appendChild(tempSpan);
-            
-                    const containerWidth = firstLine.clientWidth;
-                    const naturalWidth = tempSpan.getBoundingClientRect().width;
-                    document.body.removeChild(tempSpan);
-            
-                    const charCount = firstLine.innerText.length;
-                    
-                    // คำนวณระยะห่างส่วนเกินที่ถูกยืด ออกมาเป็น px ต่อตัวอักษร
-                    if (charCount > 1 && containerWidth > naturalWidth) {
-                        const autoSpacing = (containerWidth - naturalWidth) / (charCount - 1);
-                        lastLine.style.letterSpacing = `${autoSpacing}px`;
-                    }
-                }
-            });
-
+            descElem.textContent = variant.descriptionData.desc || '';
             // 3. ปรับแต่งรูปแบบตัวอักษร (Typography Styles) จาก JSON โดยตรง
             const styleConfig = variant.descriptionData.style || {};
             descElem.style.fontSize = styleConfig.fontSize || '14px';
             descElem.style.fontWeight = styleConfig.fontWeight || 'normal';
             descElem.style.fontStyle = styleConfig.isItalic ? 'italic' : 'normal';
-
             // ดึง FontFamily จากชื่อฟอนต์ที่กำหนดไว้ใน Config
             if (styleConfig.fontName) {
                 const fontMatch = CONFIG.fonts.find(f => f.name === styleConfig.fontName);
@@ -272,19 +209,16 @@
             } else {
                 descElem.style.fontFamily = 'inherit';
             }
-
             // 4. ประกอบ Social Proof จากโครงสร้าง JSON
             const proof = variant.socialProofData;
-            const iconHTML = (proof.iconClass && proof.iconClass.trim() !== '') 
-                ? `<i class="${proof.iconClass}"></i>` 
+            const iconHTML = (proof.iconClass && proof.iconClass.trim() !== '')
+                ? `<i class="${proof.iconClass}"></i>`
                 : '';
             document.getElementById('product-social-proof').innerHTML = `${iconHTML}<span>${proof.text}</span>`;
-
             // 5. จัดการการแสดงผลสื่อ Presentation
             document.getElementById('variant-static').classList.add('hidden');
             document.getElementById('variant-video-8fps').classList.add('hidden');
             document.getElementById('variant-video-60fps').classList.add('hidden');
-
             const pres = variant.presentation;
             if (pres.id === 'static') {
                 const imgElem = document.getElementById('img-static');
@@ -304,23 +238,20 @@
                 videoElem.load();
                 document.getElementById('variant-video-60fps').classList.remove('hidden');
             }
-
             return true;
         }
 
         function openFullscreen() {
             const elem = document.documentElement;
-            if (elem.requestFullscreen) { elem.requestFullscreen().catch(() => {}); } 
-            else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); } 
+            if (elem.requestFullscreen) { elem.requestFullscreen().catch(() => {}); }
+            else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
             else if (elem.msRequestFullscreen) { elem.msRequestFullscreen(); }
         }
-
         function closeFullscreen() {
-            if (document.exitFullscreen) { document.exitFullscreen().catch(() => {}); } 
-            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); } 
+            if (document.exitFullscreen) { document.exitFullscreen().catch(() => {}); }
+            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
             else if (document.msExitFullscreen) { document.msExitFullscreen(); }
         }
-
         function startTimer() {
             if (timerInterval) return;
             timerInterval = setInterval(() => {
@@ -333,18 +264,16 @@
                 }
             }, 1000);
         }
-
         function pauseTimer() {
             if (timerInterval) {
                 clearInterval(timerInterval);
                 timerInterval = null;
             }
         }
-
         document.getElementById('start-fullscreen-btn').addEventListener('click', () => {
             openFullscreen();
             document.getElementById('fullscreen-overlay').classList.add('hidden');
-            
+
             if (!hasStartedVideo) {
                 hasStartedVideo = true;
                 const variant = MATRIX_VARIANTS[currentVariantIndex];
@@ -360,7 +289,6 @@
             }
             startTimer();
         });
-
         const handleFullscreenChange = () => {
             const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
             if (!isFullscreen && hasStartedVideo && !isDone) {
@@ -372,10 +300,8 @@
                 startTimer();
             }
         };
-
         document.addEventListener('fullscreenchange', handleFullscreenChange);
         document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-
         document.getElementById('add-to-cart-btn').addEventListener('click', () => {
             if (!isDone) {
                 const msg = CONFIG.uiTexts.toast.waitTimer.replace('{seconds}', remainingSeconds);
@@ -384,7 +310,6 @@
                 showCustomToast(CONFIG.uiTexts.toast.completed);
             }
         });
-
         document.getElementById('return-survey-btn').addEventListener('click', () => {
             closeFullscreen();
             document.getElementById('return-survey-btn').classList.add('hidden');
@@ -393,7 +318,6 @@
             document.getElementById('done-screen').classList.remove('hidden');
             document.getElementById('done-screen').classList.add('flex');
         });
-
         document.addEventListener('DOMContentLoaded', () => {
             loadConfig();
         });
