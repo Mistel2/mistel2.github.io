@@ -4,11 +4,18 @@
     "productPrice": "89",
     "currencySymbol": "฿"
   },
-  "fonts": [
+  "font_h": [
     {
       "name": "Playpen Sans Thai",
       "url": "https://fonts.googleapis.com/css2?family=Playpen+Sans+Thai:wght@400;600;700&display=swap",
       "fontFamily": "'Playpen Sans Thai', cursive"
+    }
+  ],
+  "font_u": [
+    {
+      "name": "Chakra Petch",
+      "url": "https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&display=swap",
+      "fontFamily": "'Chakra Petch', sans-serif"
     }
   ],
   "presentations": [
@@ -31,32 +38,32 @@
       "src": "video_60fps.mp4"
     }
   ],
-    "descriptions": [
-        {
-          "code": "U",
-          "type": "Utilitarian",
-          "title": "แกงมัสมั่นไก่",
-          "desc": "สารอาหารครบถ้วนให้พลังงานสูงแหล่งโปรตีนจากเนื้อไก่พร้อมคาร์โบไฮเดรตวิตามินและไขมันดีในเม็ดมะม่วงหิมพานต์กับกะทิรวมถึงเครื่องเทศมีส่วนช่วยระบบย่อยอาหาร",
-          "style": {
-            "fontName": "system-ui",
-            "fontSize": "16px",
-            "fontWeight": "400",
-            "isItalic": false
-          }
-        },
-        {
-          "code": "H",
-          "type": "Hedonic",
-          "title": "แกงมัสมั่นไก่",
-          "desc": "ต้นตำรับอาหารชาววังเนื้อไก่นุ่มชุ่มทะลักในปากรสจัดจ้านถึงเครื่องเทศตำรับอินเดียเคี่ยวกะทิหอมมันเพลิดเพลินกับเม็ดมะม่วงหิมพานต์คั่วกรอบอร่อยแสงออกปาก",
-          "style": {
-            "fontName": "Sriracha",
-            "fontSize": "16px",
-            "fontWeight": "400",
-            "isItalic": false
-          }
-        }
-    ],
+"descriptions": [
+    {
+      "code": "U",
+      "type": "Utilitarian",
+      "title": "แกงมัสมั่นไก่",
+      "desc": "สารอาหารครบถ้วนอิ่มท้องนานพลังงานสูงแกงมัสมั่นน่องไก่อุดมไปด้วยโปรตีนพร้อมคาร์โบไฮเดรตจากมันฝรั่งและไขมันดีจากเม็ดมะม่วงหิมพานต์ผสานเครื่องเทศมีส่วนช่วยระบบย่อยอาหาร",
+      "style": {
+        "fontName": "Chakra Petch",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "isItalic": false
+      }
+    },
+    {
+      "code": "H",
+      "type": "Hedonic",
+      "title": "แกงมัสมั่นไก่",
+      "desc": "ต้นตำรับอาหารชาววังเนื้อไก่นุ่มชุ่มทะลักในปากจัดจ้านถึงเครื่องเทศตำรับอินเดียเคี่ยวกะทิหอมมันเพลิดเพลินกับเม็ดมะม่วงหิมพานต์คั่วกรอบอร่อยแสงออกปาก",
+      "style": {
+        "fontName": "Playpen Sans Thai",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "isItalic": false
+      }
+    }
+  ],
 "socialProofs": [
     {
       "code": "nE",

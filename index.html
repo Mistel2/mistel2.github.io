@@ -109,6 +109,7 @@
         let hasStartedVideo = false;
         let currentVariantIndex = -1;
         let MATRIX_VARIANTS = [];
+
         async function loadConfig() {
             try {
                 const response = await fetch('config.json');
@@ -116,8 +117,12 @@
 
                 CONFIG = await response.json();
 
+                // รวมรายการฟอนต์จาก font_h และ font_u ให้รองรับการค้นหาและดึงไปใช้
+                CONFIG.fonts = [...(CONFIG.font_h || []), ...(CONFIG.font_u || [])];
+
                 REQUIRED_TIME = CONFIG.settings.requiredTimeSeconds || 15;
                 remainingSeconds = REQUIRED_TIME;
+
                 // โหลด Google Fonts เข้าสู่เอกสาร
                 if (CONFIG.fonts && Array.isArray(CONFIG.fonts)) {
                     CONFIG.fonts.forEach(font => {
@@ -127,6 +132,7 @@
                         document.head.appendChild(linkElem);
                     });
                 }
+
                 // UI Texts
                 document.getElementById('return-survey-btn-text').innerText = CONFIG.uiTexts.returnSurveyBtn;
                 document.getElementById('overlay-title').innerText = CONFIG.uiTexts.fullscreenOverlay.title;
@@ -138,6 +144,7 @@
                 document.getElementById('done-title').innerText = CONFIG.uiTexts.doneScreen.title;
                 document.getElementById('done-msg').innerText = CONFIG.uiTexts.doneScreen.message;
                 document.getElementById('toast-text').innerText = CONFIG.uiTexts.toast.default;
+
                 // สร้าง Matrix Variants
                 MATRIX_VARIANTS = [];
                 CONFIG.presentations.forEach((pres) => {
@@ -158,6 +165,7 @@
                 showErrorScreen();
             }
         }
+
         let toastTimeout = null;
         function showCustomToast(message) {
             const toast = document.getElementById('custom-toast');
@@ -170,6 +178,7 @@
                 toast.classList.add('opacity-0', 'pointer-events-none', '-translate-y-2');
             }, 2500);
         }
+
         function showErrorScreen() {
             document.getElementById('error-screen').classList.remove('hidden');
             document.getElementById('error-screen').classList.add('flex');
@@ -177,6 +186,7 @@
             document.getElementById('main-app').classList.add('hidden');
             document.getElementById('app-footer').classList.add('hidden');
         }
+
         function parseHashAndRender() {
             const hash = window.location.hash;
             const maxCount = MATRIX_VARIANTS.length;
@@ -189,19 +199,23 @@
 
             currentVariantIndex = parseInt(match[1]) - 1;
             const variant = MATRIX_VARIANTS[currentVariantIndex];
+
             // 1. ตั้งค่าราคา
             const priceText = `${CONFIG.settings.currencySymbol}${CONFIG.settings.productPrice}`;
             document.getElementById('product-price').innerText = priceText;
             document.getElementById('cart-price').innerText = priceText;
+
             // 2. ตั้งค่าชื่อและข้อความคำอธิบาย
             document.getElementById('product-title').innerText = variant.descriptionData.title;
             const descElem = document.getElementById('product-desc');
             descElem.textContent = variant.descriptionData.desc || '';
+
             // 3. ปรับแต่งรูปแบบตัวอักษร (Typography Styles) จาก JSON โดยตรง
             const styleConfig = variant.descriptionData.style || {};
             descElem.style.fontSize = styleConfig.fontSize || '14px';
             descElem.style.fontWeight = styleConfig.fontWeight || 'normal';
             descElem.style.fontStyle = styleConfig.isItalic ? 'italic' : 'normal';
+
             // ดึง FontFamily จากชื่อฟอนต์ที่กำหนดไว้ใน Config
             if (styleConfig.fontName) {
                 const fontMatch = CONFIG.fonts.find(f => f.name === styleConfig.fontName);
@@ -209,12 +223,14 @@
             } else {
                 descElem.style.fontFamily = 'inherit';
             }
+
             // 4. ประกอบ Social Proof จากโครงสร้าง JSON
             const proof = variant.socialProofData;
             const iconHTML = (proof.iconClass && proof.iconClass.trim() !== '')
                 ? `<i class="${proof.iconClass}"></i>`
                 : '';
             document.getElementById('product-social-proof').innerHTML = `${iconHTML}<span>${proof.text}</span>`;
+
             // 5. จัดการการแสดงผลสื่อ Presentation
             document.getElementById('variant-static').classList.add('hidden');
             document.getElementById('variant-video-8fps').classList.add('hidden');
@@ -247,11 +263,13 @@
             else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
             else if (elem.msRequestFullscreen) { elem.msRequestFullscreen(); }
         }
+
         function closeFullscreen() {
             if (document.exitFullscreen) { document.exitFullscreen().catch(() => {}); }
             else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
             else if (document.msExitFullscreen) { document.msExitFullscreen(); }
         }
+
         function startTimer() {
             if (timerInterval) return;
             timerInterval = setInterval(() => {
@@ -264,12 +282,14 @@
                 }
             }, 1000);
         }
+
         function pauseTimer() {
             if (timerInterval) {
                 clearInterval(timerInterval);
                 timerInterval = null;
             }
         }
+
         document.getElementById('start-fullscreen-btn').addEventListener('click', () => {
             openFullscreen();
             document.getElementById('fullscreen-overlay').classList.add('hidden');
@@ -289,6 +309,7 @@
             }
             startTimer();
         });
+
         const handleFullscreenChange = () => {
             const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
             if (!isFullscreen && hasStartedVideo && !isDone) {
@@ -300,8 +321,10 @@
                 startTimer();
             }
         };
+
         document.addEventListener('fullscreenchange', handleFullscreenChange);
         document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+
         document.getElementById('add-to-cart-btn').addEventListener('click', () => {
             if (!isDone) {
                 const msg = CONFIG.uiTexts.toast.waitTimer.replace('{seconds}', remainingSeconds);
@@ -310,6 +333,7 @@
                 showCustomToast(CONFIG.uiTexts.toast.completed);
             }
         });
+
         document.getElementById('return-survey-btn').addEventListener('click', () => {
             closeFullscreen();
             document.getElementById('return-survey-btn').classList.add('hidden');
@@ -318,6 +342,7 @@
             document.getElementById('done-screen').classList.remove('hidden');
             document.getElementById('done-screen').classList.add('flex');
         });
+
         document.addEventListener('DOMContentLoaded', () => {
             loadConfig();
         });
