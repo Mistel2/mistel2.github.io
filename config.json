@@ -1,6 +1,6 @@
 {
   "settings": {
-    "requiredTimeSeconds": 15,
+    "requiredTimeSeconds": 8,
     "productPrice": "89",
     "currencySymbol": "฿"
   },
